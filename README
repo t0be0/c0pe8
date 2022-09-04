@@ -1,0 +1,33 @@
+c0pe8 Linux
+===========
+
+Just booting a Linux from bare kernel and busybox (name doesn't matters, does it ?)
+
+[+] Building (from script)
+--------------------------
+
+	> Takes around 20-30 mins
+	
+	[*] pre-reqs:
+		- for compiling kernel
+			- simply uncomment line 7 in build.sh
+		- emulator
+			- QEMU [ sudo apt-get install qemu-system ]
+			
+	[*] building:
+		- simply run ./build.sh [ ./build.sh ]
+			- builds kernel[bzImage] and initrd.img inside /build
+			
+	[*] karnel-panic:
+		- run what u build with ./run.sh [ ./run.sh ]
+
+[+] skip building
+-----------------
+	
+	> already compiled and built kernel, initrd.img (inside /build)
+	- skip building and simply run ./run.sh [ ./run.sh ]
+
+[!] To-Do
+---------
+
+	- Add more compiled-binaries (especially gcc)
