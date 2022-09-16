@@ -3,8 +3,7 @@
 KERNEL_VERSION=5.15.64
 BUSYBOX_VERSION=1.35.0
 
-### Uncomment below line to install Linux C0mpiling essentials
-# sudo apt-get install fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison -y
+# fakeroot build-essential ncurses-dev xz-utils libssl-dev/openssl bc flex libelf-dev bison
 
 _die()
 {
@@ -16,6 +15,7 @@ mkdir -p source
 cd source
     
     echo "[+] Checking Source Files"
+    echo "-------------------------"
     
     #KERNEL
     if [ ! -d linux-$KERNEL_VERSION ];
@@ -46,6 +46,7 @@ cd source
     fi
     
     echo "[+] Setting up"
+    echo "--------------"
     
     #KERNEL
     cd linux-$KERNEL_VERSION
@@ -53,6 +54,7 @@ cd source
     then
     
         make defconfig || _die "defconfig failed for kernel ('make defconfig' inside `pwd`), Exitting..."
+        sed 's/^.*CONFIG_DEFAULT_HOSTNAME[^_]*$/CONFIG_DEFAULT_HOSTNAME="c0pe8"/g' -i .config || echo "@deathpicnic"
         make -j`nproc` || _die "Error while compiling kernel ('make -j`nproc`' inside `pwd`), Exitting..."
     fi
     cd ../
@@ -74,13 +76,15 @@ rm -rf initrd
 mkdir -p initrd
 cd initrd
 
-    mkdir -p bin dev proc sbin sys
+    mkdir -p bin dev proc sbin sys home mnt etc lib
     cd bin
         cp ../../source/busybox-$BUSYBOX_VERSION/busybox .
         for binary in `./busybox --list`
         do
             ln -s busybox ./$binary
         done
+        ### If u wanna add more binaries (copy-paste ones) (definitely not recommended)
+        ### cp /directory/to/binary .
     cd ../
     cd sbin/
     
@@ -91,11 +95,17 @@ cd initrd
         echo "mkdir -p /dev/pts" >> init.sh
         echo "mount -t devpts dev/pts /dev/pts" >> init.sh
         
+        echo "export HOME=/home/" >> init.sh
+        echo "export PATH=/bin:/sbin" >> init.sh
+                
+        echo "sysctl -w kernel.printk='2 4 1 7'" >> init.sh
+        
         echo "clear" >> init.sh
         
-        echo "echo '======c0pe8 Linux======'" >> init.sh
+        echo "echo 'c0pe8'" >> init.sh
+        echo "echo '====='" >> init.sh
         echo "echo '@deathpicnic'" >> init.sh
-        echo ""
+        echo "echo ''" >> init.sh
         
         #echo "/bin/sh" >> init.sh
         # some hackish workaround for [sh: can't access tty; job control turned off]
@@ -125,4 +135,6 @@ cd ../
 rm -rf initrd*
 
 echo "[+] Built Success"
+echo "-----------------"
 echo "[^] try running with qemu (x86_64) using './run.sh'"
+
